@@ -1,6 +1,6 @@
 services:
   mysql:
-    image: mariadb:10.11
+    image: mariadb:latest
     container_name: zabbix-mysql
     restart: unless-stopped
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --default-authentication-plugin=mysql_native_password
@@ -16,13 +16,19 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
+      
   zabbix-server:
-    image: zabbix/zabbix-server-mysql:ubuntu-7.0-latest
+    build: 
+      context: /opt
+      dockerfile: Dockerfile
     container_name: zabbix-server
     restart: unless-stopped
     depends_on:
         mysql:
           condition: service_healthy
+    volumes: 
+    - /etc/odbc.ini:/etc/odbc.ini:ro
+    - /etc/odbcinst.ini:/etc/odbcinst.ini:ro
     environment:
       DB_SERVER_HOST: mysql
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -51,14 +57,14 @@ services:
       ZBX_DBPASSWORD: ${MYSQL_PASSWORD}
       PHP_TZ: America/Sao_Paulo
     ports:
-      - "8080:8080"
+      - "8090:8080"
 
   grafana:
     image: grafana/grafana:latest
     container_name: lab-grafana
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3171:3000"
     environment:
       - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
     volumes:
