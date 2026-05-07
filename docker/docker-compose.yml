@@ -19,7 +19,7 @@ services:
       
   zabbix-server:
     build: 
-      context: /opt
+      context: .
       dockerfile: Dockerfile
     container_name: zabbix-server
     restart: unless-stopped
